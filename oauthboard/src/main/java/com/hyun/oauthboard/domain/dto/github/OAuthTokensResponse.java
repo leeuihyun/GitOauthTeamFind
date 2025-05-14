@@ -1,4 +1,4 @@
-package com.hyun.oauthboard.domain.dto;
+package com.hyun.oauthboard.domain.dto.github;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

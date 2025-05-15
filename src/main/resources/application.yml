@@ -10,6 +10,10 @@ spring:
     username: root
     password: 1234
 
+  jwt:
+    expiration_time: 86400000
+    secret: cb924fc4b756a14ab2e9c69d356225f0c3b9379fca1038da4d522f997b94ded5
+
   jpa:
     hibernate:
       ddl-auto: update

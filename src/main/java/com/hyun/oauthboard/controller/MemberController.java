@@ -42,7 +42,19 @@ public class MemberController {
         return "login";
     }
 
-    @GetMapping("/login/oauth2/code/github")
+    @GetMapping("/githublogin")
+    public String githubLogin() {
+        return "githublogin";
+    }
+
+    @GetMapping("/test")
+    public String test(Authentication authentication) {
+        System.out.println(authentication.getName());
+        return "test";
+    }
+
+
+    @GetMapping("/github/oauth")
     public ResponseEntity<JwtToken> getMemberGithubInfo(@RequestParam final String code) {
         final OAuthTokensResponse gitAccessToken = getTokensInfo(code);
         final GithubMemberInfo githubMemberInfo = getGithubUserInfo(

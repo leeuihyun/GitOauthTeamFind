@@ -8,5 +8,7 @@ public interface MemberService {
 
     Member signIn(GithubMemberInfo githubMemberInfo);
 
+    void deleteMember(Authentication authentication, Long memberId);
+
     Authentication authenticate(Member member);
 }

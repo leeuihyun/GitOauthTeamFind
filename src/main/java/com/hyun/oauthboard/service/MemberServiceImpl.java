@@ -2,6 +2,8 @@ package com.hyun.oauthboard.service;
 
 import com.hyun.oauthboard.domain.dto.github.GithubMemberInfo;
 import com.hyun.oauthboard.domain.entity.Member;
+import com.hyun.oauthboard.enums.MemberError;
+import com.hyun.oauthboard.exception.CustomException;
 import com.hyun.oauthboard.repository.MemberRepository;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +27,7 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public Member signIn(GithubMemberInfo githubMemberInfo) {
         Optional<Member> optionalMember = memberRepository.findById(githubMemberInfo.getId());
+
         if (optionalMember.isPresent()) {
             return optionalMember.get();
         } else {
@@ -33,13 +36,25 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
+    @Transactional
+    @Override
+    public void deleteMember(Authentication authentication, Long memberId) {
+        Member member = memberRepository.findById((long) Integer.parseInt(authentication.getName()))
+            .orElseThrow(() -> new CustomException(MemberError.MEMBER_ID_NOT_EXIST));
+
+        if (!member.getMemberId().equals(memberId)) {
+            throw new CustomException(MemberError.MEMBER_ID_MISMATCH);
+        }
+
+        memberRepository.delete(member);
+    }
+
     @Override
     public Authentication authenticate(Member member) {
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-        //SecurityContextHolder.getContext().setAuthentication(authentication);
 
         return new UsernamePasswordAuthenticationToken(
-            member.getMemberName(), null, authorities);
+            member.getMemberId(), null, authorities);
     }
 }
 

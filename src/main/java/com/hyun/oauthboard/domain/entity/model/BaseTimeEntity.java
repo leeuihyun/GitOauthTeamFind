@@ -1,4 +1,4 @@
-package com.hyun.oauthboard.domain.entity;
+package com.hyun.oauthboard.domain.entity.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

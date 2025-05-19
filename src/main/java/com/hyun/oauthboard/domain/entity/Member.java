@@ -1,13 +1,21 @@
 package com.hyun.oauthboard.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hyun.oauthboard.domain.dto.github.GithubMemberInfo;
+import com.hyun.oauthboard.domain.entity.model.BaseTimeEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
+@ToString(exclude = "boards")
 @Getter
 @NoArgsConstructor
 public class Member extends BaseTimeEntity {
@@ -21,6 +29,10 @@ public class Member extends BaseTimeEntity {
 
     @Column(name = "member_avatar")
     private String memberAvatar;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Board> boards = new ArrayList<>();
 
     public Member(GithubMemberInfo githubMemberInfo) {
         this.memberId = githubMemberInfo.getId();

@@ -5,6 +5,7 @@ import com.hyun.oauthboard.domain.dto.github.OAuthAccessTokenRequest;
 import com.hyun.oauthboard.domain.dto.github.OAuthTokensResponse;
 import com.hyun.oauthboard.domain.dto.jwt.JwtToken;
 import com.hyun.oauthboard.domain.entity.Member;
+import com.hyun.oauthboard.jwt.JwtPayload;
 import com.hyun.oauthboard.jwt.JwtTokenProvider;
 import com.hyun.oauthboard.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,9 +36,9 @@ public class MemberController {
     private final MemberService memberService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @Value("${spring.security.oauth2.client.registration.github.client-id}")
+    @Value("${security.github.client.client-id}")
     private String clientId;
-    @Value("${spring.security.oauth2.client.registration.github.client-secret}")
+    @Value("${security.github.client.client-secret}")
     private String clientSecret;
 
     @GetMapping("/login")
@@ -58,10 +60,10 @@ public class MemberController {
     }
 
     @DeleteMapping("/member/{memberId}")
-    public ResponseEntity<Void> deleteMember(Authentication authentication,
+    public ResponseEntity<Void> deleteMember(@AuthenticationPrincipal JwtPayload jwtPayload,
         @PathVariable final Long memberId) {
 
-        memberService.deleteMember(authentication, memberId);
+        memberService.deleteMember(jwtPayload, memberId);
         return ResponseEntity.ok().build();
     }
 
@@ -73,9 +75,13 @@ public class MemberController {
             gitAccessToken.getAccessToken());
 
         Member member = memberService.signIn(githubMemberInfo);
-        Authentication authentication = memberService.authenticate(member);
 
-        return ResponseEntity.ok().body(jwtTokenProvider.generateToken(authentication));
+        JwtPayload jwtPayload = new JwtPayload(
+            member.getMemberId(),
+            member.getMemberName(),
+            member.getMemberAvatar());
+
+        return ResponseEntity.ok().body(jwtTokenProvider.generateToken(jwtPayload));
     }
 
     public OAuthTokensResponse getTokensInfo(final String code) {

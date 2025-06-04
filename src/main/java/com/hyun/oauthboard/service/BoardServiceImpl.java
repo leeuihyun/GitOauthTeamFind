@@ -7,40 +7,36 @@ import com.hyun.oauthboard.domain.entity.Member;
 import com.hyun.oauthboard.enums.BoardError;
 import com.hyun.oauthboard.enums.MemberError;
 import com.hyun.oauthboard.exception.CustomException;
+import com.hyun.oauthboard.jwt.JwtPayload;
 import com.hyun.oauthboard.repository.BoardRepository;
 import com.hyun.oauthboard.repository.MemberRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
 
-
-    public BoardServiceImpl(BoardRepository boardRepository, MemberRepository memberRepository) {
-        this.boardRepository = boardRepository;
-        this.memberRepository = memberRepository;
-    }
-
-    @PreAuthorize("@securityAuthorizationBoard.checkOwner(authentication, #boardCreateRequestDto.boardId)")
+    @PreAuthorize("@securityAuthorizationBoard.checkOwner(jwtPayload.memberId, #boardCreateRequestDto.boardId)")
     @Transactional
     @Override
-    public BoardResponse createBoard(Authentication authentication,
+    public BoardResponse createBoard(JwtPayload jwtPayload,
         BoardCreateRequestDto boardCreateRequestDto) {
-        Member member = memberRepository.findById((long) Integer.parseInt(authentication.getName()))
+        Member member = memberRepository.findById(jwtPayload.getMemberId())
             .orElseThrow(() -> new CustomException(MemberError.MEMBER_ID_NOT_EXIST));
 
         return boardRepository.save(boardCreateRequestDto.toEntity(member)).toDto();
     }
 
-    @PreAuthorize("@securityAuthorizationBoard.checkOwner(authentication, #boardCreateRequestDto.boardId)")
+    @PreAuthorize("@securityAuthorizationBoard.checkOwner(jwtPayload.memberId, #boardCreateRequestDto.boardId)")
     @Transactional
     @Override
-    public BoardResponse updateBoard(Authentication authentication,
+    public BoardResponse updateBoard(JwtPayload jwtPayload,
         BoardCreateRequestDto boardCreateRequestDto) {
 
         Board board = boardRepository.findById(
@@ -52,9 +48,8 @@ public class BoardServiceImpl implements BoardService {
 
     @Transactional
     @Override
-    public void deleteBoard(Authentication authentication, Long boardId) {
-        Member member = memberRepository.findById(
-                (long) Integer.parseInt(authentication.getName()))
+    public void deleteBoard(JwtPayload jwtPayload, Long boardId) {
+        Member member = memberRepository.findById(jwtPayload.getMemberId())
             .orElseThrow(() -> new CustomException(MemberError.MEMBER_ID_NOT_EXIST));
 
         Board board = boardRepository.findById(boardId)

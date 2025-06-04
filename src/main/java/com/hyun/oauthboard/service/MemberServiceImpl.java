@@ -4,9 +4,11 @@ import com.hyun.oauthboard.domain.dto.github.GithubMemberInfo;
 import com.hyun.oauthboard.domain.entity.Member;
 import com.hyun.oauthboard.enums.MemberError;
 import com.hyun.oauthboard.exception.CustomException;
+import com.hyun.oauthboard.jwt.JwtPayload;
 import com.hyun.oauthboard.repository.MemberRepository;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,31 +17,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
-
-    public MemberServiceImpl(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository;
-    }
 
     @Override
     @Transactional
     public Member signIn(GithubMemberInfo githubMemberInfo) {
         Optional<Member> optionalMember = memberRepository.findById(githubMemberInfo.getId());
 
-        if (optionalMember.isPresent()) {
-            return optionalMember.get();
-        } else {
-            Member newMember = new Member(githubMemberInfo);
-            return memberRepository.save(newMember);
-        }
+        return optionalMember.orElseGet(() -> memberRepository.save(new Member(githubMemberInfo)));
     }
 
     @Transactional
     @Override
-    public void deleteMember(Authentication authentication, Long memberId) {
-        Member member = memberRepository.findById((long) Integer.parseInt(authentication.getName()))
+    public void deleteMember(JwtPayload jwtPayload, Long memberId) {
+        Member member = memberRepository.findById(jwtPayload.getMemberId())
             .orElseThrow(() -> new CustomException(MemberError.MEMBER_ID_NOT_EXIST));
 
         if (!member.getMemberId().equals(memberId)) {

@@ -1,12 +1,14 @@
 package com.hyun.oauthboard.jwt;
 
 import com.hyun.oauthboard.security.SecurityConstants;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,14 +37,22 @@ public class JwtAuthenticationFilter implements Filter {
 
         String token = resolveToken((HttpServletRequest) request);
 
-        System.out.println("토큰 = " + token);
+        try {
+            if (token == null) {
+                ((HttpServletResponse) response).sendRedirect("/login");
+            }
 
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            Authentication authentication = jwtTokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (!jwtTokenProvider.validateToken(token)) {
+                ((HttpServletResponse) response).sendRedirect("/login");
+            }
+
+            Authentication auth = jwtTokenProvider.getAccessAuthentication(token);
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            chain.doFilter(request, response);
+        } catch (SecurityException | MalformedJwtException e) {
+            throw new ServletException("");
         }
-
-        chain.doFilter(request, response);
     }
 
     private String resolveToken(HttpServletRequest request) {

@@ -35,7 +35,7 @@ public class BoardController {
         return "write";
     }
 
-    @PostMapping("/board/write")
+    @PostMapping("/board")
     public ResponseEntity<BoardResponse> writeBoard(Authentication authentication,
         @RequestBody BoardCreateRequestDto boardCreateRequestDto) {
         BoardResponse board = boardService.createBoard(authentication, boardCreateRequestDto);
@@ -43,7 +43,7 @@ public class BoardController {
         return ResponseEntity.ok().body(board);
     }
 
-    @PutMapping("/board/update")
+    @PutMapping("/board")
     public ResponseEntity<BoardResponse> updateBoard(Authentication authentication,
         @RequestBody BoardCreateRequestDto boardCreateRequestDto) {
         BoardResponse board = boardService.updateBoard(authentication, boardCreateRequestDto);
@@ -51,7 +51,7 @@ public class BoardController {
         return ResponseEntity.ok().body(board);
     }
 
-    @DeleteMapping("/board/delete/{boardId}")
+    @DeleteMapping("/board/{boardId}")
     public ResponseEntity<Void> deleteBoard(Authentication authentication,
         @PathVariable Long boardId) {
         boardService.deleteBoard(authentication, boardId);

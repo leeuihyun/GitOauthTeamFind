@@ -57,7 +57,7 @@ public class MemberController {
         return "test";
     }
 
-    @DeleteMapping("/member/delete/{memberId}")
+    @DeleteMapping("/member/{memberId}")
     public ResponseEntity<Void> deleteMember(Authentication authentication,
         @PathVariable final Long memberId) {
 

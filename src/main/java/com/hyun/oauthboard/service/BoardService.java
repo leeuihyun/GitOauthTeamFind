@@ -2,15 +2,15 @@ package com.hyun.oauthboard.service;
 
 import com.hyun.oauthboard.domain.dto.board.BoardCreateRequestDto;
 import com.hyun.oauthboard.domain.dto.board.BoardResponse;
-import org.springframework.security.core.Authentication;
+import com.hyun.oauthboard.jwt.JwtPayload;
 
 public interface BoardService {
 
-    BoardResponse createBoard(Authentication authentication,
+    BoardResponse createBoard(JwtPayload jwtPayload,
         BoardCreateRequestDto boardCreateRequestDto);
 
-    BoardResponse updateBoard(Authentication authentication,
+    BoardResponse updateBoard(JwtPayload jwtPayload,
         BoardCreateRequestDto boardCreateRequestDto);
 
-    void deleteBoard(Authentication authentication, Long boardId);
+    void deleteBoard(JwtPayload jwtPayload, Long boardId);
 }

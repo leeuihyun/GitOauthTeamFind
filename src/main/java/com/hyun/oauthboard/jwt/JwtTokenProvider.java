@@ -7,16 +7,14 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import java.security.Key;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
-import java.util.stream.Collectors;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
@@ -24,67 +22,68 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtTokenProvider {
 
-    private final Key key;
+    private Key accessKey;
+    private Key refreshKey;
 
-    public JwtTokenProvider(@Value("${spring.jwt.secret}") String secretKey) {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        this.key = Keys.hmacShaKeyFor(keyBytes);
+    @Value("${jwt.secret.access}")
+    private String accessKeyStr;
+
+    @Value("${jwt.secret.refresh}")
+    private String refreshKeyStr;
+
+    @PostConstruct
+    public void go() {
+        this.accessKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessKeyStr));
+        this.refreshKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshKeyStr));
     }
 
-    public JwtToken generateToken(Authentication authentication) {
-        // 권한 가져오기
-        String authorities = authentication.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.joining(","));
-
+    public JwtToken generateToken(JwtPayload jwtPayload) {
         long now = (new Date()).getTime();
 
-        // Access Token
-        Date accessTokenExpiresIn = new Date(now + 3600000);
+        // Access Token 30분 유지
+        Date accessTokenExpires = new Date(now + (60 * 30 * 1000L));
         String accessToken = Jwts.builder()
-            .setSubject(authentication.getName())
-            .claim("auth", authorities)
-            .setExpiration(accessTokenExpiresIn)
-            .signWith(key, SignatureAlgorithm.HS256)
+            .setSubject(String.valueOf(jwtPayload.getMemberId()))
+            .claim("memberAvatar", jwtPayload.getMemberAvatar())
+            .claim("memberName", jwtPayload.getMemberName())
+            .setExpiration(accessTokenExpires)
+            .signWith(accessKey, SignatureAlgorithm.HS256)
             .compact();
 
-        // Refresh Token
-        /*
+        // RefreshToken 24시간 유지
+        Date refreshTokenExpires = new Date(now + (60 * 60 * 24 * 1000L));
         String refreshToken = Jwts.builder()
-            .setExpiration(new Date(now + 86400000))
-            .signWith(key, SignatureAlgorithm.HS256)
+            .setSubject(String.valueOf(jwtPayload.getMemberId()))
+            .setExpiration(refreshTokenExpires)
+            .signWith(refreshKey, SignatureAlgorithm.HS256)
             .compact();
-        */
 
         return JwtToken.builder()
-            .grantType("Bearer")
             .accessToken(accessToken)
+            .refreshToken(refreshToken)
             .build();
     }
 
-    public Authentication getAuthentication(String token) {
+    public Authentication getAccessAuthentication(String token) {
         Claims claims = Jwts.parserBuilder()
-            .setSigningKey(key)
+            .setSigningKey(accessKey)
             .build()
             .parseClaimsJws(token)
             .getBody();
 
-        Collection<? extends GrantedAuthority> authorities =
-            Arrays.stream(claims.get("auth").toString().split(","))
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        JwtPayload jwtPayload = new JwtPayload(Long.parseLong(claims.getSubject()),
+            claims.get("memberName", String.class), claims.get("memberAvatar", String.class));
 
-        return new UsernamePasswordAuthenticationToken(claims.getSubject(), "", authorities);
+        return new UsernamePasswordAuthenticationToken(jwtPayload, "",
+            List.of(new SimpleGrantedAuthority("ROLE_USER")));
     }
 
     public boolean validateToken(String token) {
         try {
             // 검증
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            log.info("valid JWT token");
+            Jwts.parserBuilder().setSigningKey(accessKey).build().parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
             return false;
         }
     }

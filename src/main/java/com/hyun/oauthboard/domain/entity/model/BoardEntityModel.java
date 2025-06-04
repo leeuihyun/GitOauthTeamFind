@@ -6,7 +6,6 @@ import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import lombok.Getter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -16,10 +15,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public abstract class BoardEntityModel {
 
     @Column(name = "created_at")
-    private String createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private String updatedAt;
+    private LocalDateTime updatedAt;
 
     @Column(name = "board_view")
     private Integer boardView;
@@ -29,7 +28,7 @@ public abstract class BoardEntityModel {
 
     @PrePersist
     void onPrePersist() {
-        this.createdAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        this.createdAt = LocalDateTime.now();
         this.updatedAt = createdAt;
         this.boardLike = 0;
         this.boardView = 0;
@@ -37,6 +36,6 @@ public abstract class BoardEntityModel {
 
     @PreUpdate
     void onPreUpdate() {
-        this.updatedAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        this.updatedAt = LocalDateTime.now();
     }
 }

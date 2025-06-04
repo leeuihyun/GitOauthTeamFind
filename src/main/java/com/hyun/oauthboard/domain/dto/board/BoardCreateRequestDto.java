@@ -1,4 +1,4 @@
-package com.hyun.oauthboard.domain.dto;
+package com.hyun.oauthboard.domain.dto.board;
 
 import com.hyun.oauthboard.domain.entity.Board;
 import com.hyun.oauthboard.domain.entity.Member;

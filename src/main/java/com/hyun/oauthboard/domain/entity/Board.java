@@ -1,6 +1,7 @@
 package com.hyun.oauthboard.domain.entity;
 
-import com.hyun.oauthboard.domain.dto.BoardCreateRequestDto;
+import com.hyun.oauthboard.domain.dto.board.BoardCreateRequestDto;
+import com.hyun.oauthboard.domain.dto.board.BoardResponse;
 import com.hyun.oauthboard.domain.entity.model.BoardEntityModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,5 +41,18 @@ public class Board extends BoardEntityModel {
     public void updateBoard(BoardCreateRequestDto boardCreateRequestDto) {
         this.boardTitle = boardCreateRequestDto.getBoardTitle();
         this.boardContent = boardCreateRequestDto.getBoardContent();
+    }
+
+    public BoardResponse toDto() {
+        return BoardResponse.builder()
+            .boardId(this.boardId)
+            .memberId(this.getMember().getMemberId())
+            .boardTitle(this.boardTitle)
+            .boardContent(this.boardContent)
+            .boardLike(this.getBoardLike())
+            .boardView(this.getBoardView())
+            .createdAt(this.getCreatedAt())
+            .updatedAt(this.getUpdatedAt())
+            .build();
     }
 }

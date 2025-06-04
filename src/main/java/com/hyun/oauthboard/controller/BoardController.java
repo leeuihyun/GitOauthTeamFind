@@ -1,7 +1,7 @@
 package com.hyun.oauthboard.controller;
 
-import com.hyun.oauthboard.domain.dto.BoardCreateRequestDto;
-import com.hyun.oauthboard.domain.entity.Board;
+import com.hyun.oauthboard.domain.dto.board.BoardCreateRequestDto;
+import com.hyun.oauthboard.domain.dto.board.BoardResponse;
 import com.hyun.oauthboard.service.BoardService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -36,17 +36,17 @@ public class BoardController {
     }
 
     @PostMapping("/board/write")
-    public ResponseEntity<Board> writeBoard(Authentication authentication,
+    public ResponseEntity<BoardResponse> writeBoard(Authentication authentication,
         @RequestBody BoardCreateRequestDto boardCreateRequestDto) {
-        Board board = boardService.createBoard(authentication, boardCreateRequestDto);
+        BoardResponse board = boardService.createBoard(authentication, boardCreateRequestDto);
 
         return ResponseEntity.ok().body(board);
     }
 
     @PutMapping("/board/update")
-    public ResponseEntity<Board> updateBoard(Authentication authentication,
+    public ResponseEntity<BoardResponse> updateBoard(Authentication authentication,
         @RequestBody BoardCreateRequestDto boardCreateRequestDto) {
-        Board board = boardService.updateBoard(authentication, boardCreateRequestDto);
+        BoardResponse board = boardService.updateBoard(authentication, boardCreateRequestDto);
 
         return ResponseEntity.ok().body(board);
     }

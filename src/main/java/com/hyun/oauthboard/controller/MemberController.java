@@ -16,7 +16,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
@@ -39,23 +41,33 @@ public class MemberController {
 
     @GetMapping("/login")
     public String logInPage() {
+
         return "login";
     }
 
     @GetMapping("/githublogin")
     public String githubLogin() {
+
         return "githublogin";
     }
 
     @GetMapping("/test")
     public String test(Authentication authentication) {
-        System.out.println(authentication.getName());
+
         return "test";
     }
 
+    @DeleteMapping("/member/delete/{memberId}")
+    public ResponseEntity<Void> deleteMember(Authentication authentication,
+        @PathVariable final Long memberId) {
+
+        memberService.deleteMember(authentication, memberId);
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping("/github/oauth")
     public ResponseEntity<JwtToken> getMemberGithubInfo(@RequestParam final String code) {
+
         final OAuthTokensResponse gitAccessToken = getTokensInfo(code);
         final GithubMemberInfo githubMemberInfo = getGithubUserInfo(
             gitAccessToken.getAccessToken());
@@ -67,6 +79,7 @@ public class MemberController {
     }
 
     public OAuthTokensResponse getTokensInfo(final String code) {
+
         return restTemplate.postForObject(
             ACCESS_TOKEN_URL,
             new OAuthAccessTokenRequest(clientId, clientSecret, code),
@@ -75,6 +88,7 @@ public class MemberController {
     }
 
     public GithubMemberInfo getGithubUserInfo(String accessToken) {
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
 

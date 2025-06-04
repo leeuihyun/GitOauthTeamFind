@@ -6,9 +6,9 @@
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
       <a class="navbar-brand" href="/home">FindTeam</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-              data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
-              aria-label="Toggle navigation">
+      <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
+              class="navbar-toggler" data-bs-target="#navbarNav" data-bs-toggle="collapse"
+              type="button">
         <span class="navbar-toggler-icon"></span>
       </button>
 
@@ -18,7 +18,7 @@
             <a class="nav-link active" th:href="@{/home}">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" th:href="@{/about}">About</a>
+            <a class="nav-link" href="#" onclick="goToTest()">Test</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" th:href="@{/login}">Login</a>
@@ -27,5 +27,38 @@
       </div>
     </div>
   </nav>
+  <script>
+    function goToTest() {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        alert('로그인이 필요합니다');
+        window.location.href = '/login';
+        return;
+      }
+
+      fetch('/test', {
+        headers: {
+          'Authorization': 'Bearer ' + token
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('접근 거부됨');
+        }
+        return response.text();
+      })
+      .then(html => {
+        // 현재 페이지를 새 HTML로 덮어쓰기
+        document.open();
+        document.write(html);
+        document.close();
+      })
+      .catch(error => {
+        alert('인증 오류: 로그인 후 다시 시도하세요');
+        window.location.href = '/login';
+      });
+    }
+  </script>
 </div>
+
 </html>

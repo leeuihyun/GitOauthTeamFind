@@ -5,5 +5,32 @@
 
 <div layout:fragment="content">
   test
+  <script>
+    const token = localStorage.getItem('accessToken');
+
+    if (token) {
+      fetch('http://localhost:8080/test', {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + token
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('요청 실패');
+        }
+        return response.text(); // or response.json()
+      })
+      .then(data => {
+        console.log('백엔드 응답:', data);
+        // 필요하면 DOM에 출력
+      })
+      .catch(error => {
+        console.error('에러 발생:', error);
+      });
+    } else {
+      console.error('accessToken 없음');
+    }
+  </script>
 </div>
 </html>

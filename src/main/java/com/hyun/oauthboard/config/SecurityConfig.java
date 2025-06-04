@@ -2,6 +2,9 @@ package com.hyun.oauthboard.config;
 
 import com.hyun.oauthboard.jwt.JwtAuthenticationFilter;
 import com.hyun.oauthboard.jwt.JwtTokenProvider;
+import com.hyun.oauthboard.security.CustomAccessDeniedHandler;
+import com.hyun.oauthboard.security.CustomAuthenticationEntryPoint;
+import com.hyun.oauthboard.security.SecurityConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +23,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -30,10 +35,13 @@ public class SecurityConfig {
             .sessionManagement(
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/home", "/home/**", "/login", "/login/oauth2/**", "/githublogin",
-                    "/github/oauth")
+                .requestMatchers(SecurityConstants.EXCLUDE_URLS.toArray(new String[0]))
                 .permitAll()
                 .anyRequest().authenticated()
+            )
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint(customAuthenticationEntryPoint)
+                .accessDeniedHandler(customAccessDeniedHandler)
             )
             .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
                 UsernamePasswordAuthenticationFilter.class);

@@ -5,6 +5,7 @@ import com.hyun.oauthboard.jwt.JwtTokenProvider;
 import com.hyun.oauthboard.security.CustomAccessDeniedHandler;
 import com.hyun.oauthboard.security.CustomAuthenticationEntryPoint;
 import com.hyun.oauthboard.security.SecurityConstants;
+import com.hyun.oauthboard.service.JwtBlacklistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +26,7 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final JwtBlacklistService jwtBlacklistService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -43,7 +45,7 @@ public class SecurityConfig {
                 .authenticationEntryPoint(customAuthenticationEntryPoint)
                 .accessDeniedHandler(customAccessDeniedHandler)
             )
-            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
+            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, jwtBlacklistService),
                 UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

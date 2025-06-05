@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Component
@@ -65,11 +66,7 @@ public class JwtTokenProvider {
     }
 
     public Authentication getAccessAuthentication(String token) {
-        Claims claims = Jwts.parserBuilder()
-            .setSigningKey(accessKey)
-            .build()
-            .parseClaimsJws(token)
-            .getBody();
+        Claims claims = getClaims(token);
 
         JwtPayload jwtPayload = new JwtPayload(Long.parseLong(claims.getSubject()),
             claims.get("memberName", String.class), claims.get("memberAvatar", String.class));
@@ -78,13 +75,32 @@ public class JwtTokenProvider {
             List.of(new SimpleGrantedAuthority("ROLE_USER")));
     }
 
+    public Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+            .setSigningKey(accessKey)
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
+    }
+
     public boolean validateToken(String token) {
         try {
-            // 검증
             Jwts.parserBuilder().setSigningKey(accessKey).build().parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public long getRemainingTime(String token) {
+        Date expiration = getClaims(token).getExpiration();
+        return expiration.getTime() - System.currentTimeMillis();
+    }
+
+    public String resolveToken(String bearerToken) {
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 }

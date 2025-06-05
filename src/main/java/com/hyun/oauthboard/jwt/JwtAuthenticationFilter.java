@@ -1,6 +1,7 @@
 package com.hyun.oauthboard.jwt;
 
 import com.hyun.oauthboard.security.SecurityConstants;
+import com.hyun.oauthboard.service.JwtBlacklistService;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -14,13 +15,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
 
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter implements Filter {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtBlacklistService jwtBlacklistService;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -35,7 +36,8 @@ public class JwtAuthenticationFilter implements Filter {
             return;
         }
 
-        String token = resolveToken((HttpServletRequest) request);
+        String bearerToken = httpServletRequest.getHeader("Authorization");
+        String token = jwtTokenProvider.resolveToken(bearerToken);
 
         try {
             if (token == null) {
@@ -46,6 +48,10 @@ public class JwtAuthenticationFilter implements Filter {
                 ((HttpServletResponse) response).sendRedirect("/login");
             }
 
+            if (jwtBlacklistService.isBlackList(token)) {
+                ((HttpServletResponse) response).sendRedirect("/login");
+            }
+
             Authentication auth = jwtTokenProvider.getAccessAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -53,13 +59,5 @@ public class JwtAuthenticationFilter implements Filter {
         } catch (SecurityException | MalformedJwtException e) {
             throw new ServletException("");
         }
-    }
-
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
     }
 }

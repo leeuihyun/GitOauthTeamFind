@@ -7,6 +7,7 @@ import com.hyun.oauthboard.domain.dto.jwt.JwtToken;
 import com.hyun.oauthboard.domain.entity.Member;
 import com.hyun.oauthboard.jwt.JwtPayload;
 import com.hyun.oauthboard.jwt.JwtTokenProvider;
+import com.hyun.oauthboard.service.JwtBlacklistService;
 import com.hyun.oauthboard.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
@@ -35,6 +37,7 @@ public class MemberController {
     private static final RestTemplate restTemplate = new RestTemplate();
     private final MemberService memberService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtBlacklistService jwtBlacklistService;
 
     @Value("${security.github.client.client-id}")
     private String clientId;
@@ -67,6 +70,13 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/member")
+    public ResponseEntity<Void> logout(@RequestHeader("Authorization") String bearerToken) {
+
+        jwtBlacklistService.addBlackList(jwtTokenProvider.resolveToken(bearerToken));
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/github/oauth")
     public ResponseEntity<JwtToken> getMemberGithubInfo(@RequestParam final String code) {
 
@@ -83,6 +93,7 @@ public class MemberController {
 
         return ResponseEntity.ok().body(jwtTokenProvider.generateToken(jwtPayload));
     }
+
 
     public OAuthTokensResponse getTokensInfo(final String code) {
 

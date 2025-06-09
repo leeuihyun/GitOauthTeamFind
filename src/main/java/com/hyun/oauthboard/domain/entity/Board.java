@@ -29,7 +29,7 @@ public class Board extends BoardEntityModel {
     private Long boardId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)  // 외래키 지정
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     @Column(name = "board_title")
@@ -49,8 +49,6 @@ public class Board extends BoardEntityModel {
             .memberId(this.getMember().getMemberId())
             .boardTitle(this.boardTitle)
             .boardContent(this.boardContent)
-            .boardLike(this.getBoardLike())
-            .boardView(this.getBoardView())
             .createdAt(this.getCreatedAt())
             .updatedAt(this.getUpdatedAt())
             .build();

@@ -20,18 +20,10 @@ public abstract class BoardEntityModel {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "board_view")
-    private Integer boardView;
-
-    @Column(name = "board_like")
-    private Integer boardLike;
-
     @PrePersist
     void onPrePersist() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = createdAt;
-        this.boardLike = 0;
-        this.boardView = 0;
     }
 
     @PreUpdate

@@ -6,6 +6,8 @@ import com.hyun.oauthboard.jwt.JwtPayload;
 
 public interface BoardService {
 
+    BoardResponse readBoard(JwtPayload jwtPayload, Long boardId);
+
     BoardResponse createBoard(JwtPayload jwtPayload,
         BoardCreateRequestDto boardCreateRequestDto);
 

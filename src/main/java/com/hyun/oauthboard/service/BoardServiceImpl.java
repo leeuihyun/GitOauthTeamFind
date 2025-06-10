@@ -22,11 +22,21 @@ public class BoardServiceImpl implements BoardService {
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
 
+    @Override
+    public BoardResponse readBoard(JwtPayload jwtPayload, Long boardId) {
+
+        Board board = boardRepository.findById(boardId)
+            .orElseThrow(() -> new CustomException(BoardError.BOARD_ID_NOT_EXIST));
+
+        return board.toDto();
+    }
+
     @PreAuthorize("@securityAuthorizationBoard.checkOwner(jwtPayload.memberId, #boardCreateRequestDto.boardId)")
     @Transactional
     @Override
     public BoardResponse createBoard(JwtPayload jwtPayload,
         BoardCreateRequestDto boardCreateRequestDto) {
+
         Member member = memberRepository.findById(jwtPayload.getMemberId())
             .orElseThrow(() -> new CustomException(MemberError.MEMBER_ID_NOT_EXIST));
 
@@ -49,6 +59,7 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     @Override
     public void deleteBoard(JwtPayload jwtPayload, Long boardId) {
+
         Member member = memberRepository.findById(jwtPayload.getMemberId())
             .orElseThrow(() -> new CustomException(MemberError.MEMBER_ID_NOT_EXIST));
 

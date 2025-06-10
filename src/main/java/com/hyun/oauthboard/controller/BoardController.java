@@ -34,9 +34,19 @@ public class BoardController {
         return "write";
     }
 
+    @GetMapping("/board/{boardId}")
+    public ResponseEntity<BoardResponse> searchBoard(
+        @AuthenticationPrincipal JwtPayload jwtPayload, @PathVariable Long boardId) {
+
+        BoardResponse board = boardService.readBoard(jwtPayload, boardId);
+
+        return ResponseEntity.ok().body(board);
+    }
+
     @PostMapping("/board")
     public ResponseEntity<BoardResponse> writeBoard(@AuthenticationPrincipal JwtPayload jwtPayload,
         @RequestBody BoardCreateRequestDto boardCreateRequestDto) {
+
         BoardResponse board = boardService.createBoard(jwtPayload, boardCreateRequestDto);
 
         return ResponseEntity.ok().body(board);
@@ -53,6 +63,7 @@ public class BoardController {
     @DeleteMapping("/board/{boardId}")
     public ResponseEntity<Void> deleteBoard(@AuthenticationPrincipal JwtPayload jwtPayload,
         @PathVariable Long boardId) {
+
         boardService.deleteBoard(jwtPayload, boardId);
 
         return ResponseEntity.ok().build();

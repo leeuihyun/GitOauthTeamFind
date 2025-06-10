@@ -2,7 +2,6 @@ package com.hyun.oauthboard.jwt;
 
 import com.hyun.oauthboard.security.SecurityConstants;
 import com.hyun.oauthboard.service.JwtBlacklistService;
-import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -41,23 +40,23 @@ public class JwtAuthenticationFilter implements Filter {
 
         try {
             if (token == null) {
-                ((HttpServletResponse) response).sendRedirect("/login");
+                throw new SecurityException("JWT token is missing");
             }
 
             if (!jwtTokenProvider.validateToken(token)) {
-                ((HttpServletResponse) response).sendRedirect("/login");
+                throw new SecurityException("JWT token is not validated");
             }
 
             if (jwtBlacklistService.isBlackList(token)) {
-                ((HttpServletResponse) response).sendRedirect("/login");
+                throw new SecurityException("JWT token is in blacklist");
             }
 
             Authentication auth = jwtTokenProvider.getAccessAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(auth);
 
             chain.doFilter(request, response);
-        } catch (SecurityException | MalformedJwtException e) {
-            throw new ServletException("");
+        } catch (Exception e) {
+            ((HttpServletResponse) response).sendRedirect("/login");
         }
     }
 }

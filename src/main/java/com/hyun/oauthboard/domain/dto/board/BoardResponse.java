@@ -15,6 +15,8 @@ public class BoardResponse {
     private Long memberId;
     private String boardTitle;
     private String boardContent;
+    private Long views;
+    private Long likes;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createdAt;

@@ -1,6 +1,7 @@
 package com.hyun.oauthboard.controller;
 
 import com.hyun.oauthboard.domain.dto.board.BoardCreateRequestDto;
+import com.hyun.oauthboard.domain.dto.board.BoardIdReponse;
 import com.hyun.oauthboard.domain.dto.board.BoardResponse;
 import com.hyun.oauthboard.jwt.JwtPayload;
 import com.hyun.oauthboard.service.BoardService;
@@ -39,25 +40,26 @@ public class BoardController {
         @AuthenticationPrincipal JwtPayload jwtPayload, @PathVariable Long boardId) {
 
         BoardResponse board = boardService.readBoard(jwtPayload, boardId);
-
         return ResponseEntity.ok().body(board);
     }
 
     @PostMapping("/board")
-    public ResponseEntity<BoardResponse> writeBoard(@AuthenticationPrincipal JwtPayload jwtPayload,
+    public ResponseEntity<BoardIdReponse> writeBoard(@AuthenticationPrincipal JwtPayload jwtPayload,
         @RequestBody BoardCreateRequestDto boardCreateRequestDto) {
 
-        BoardResponse board = boardService.createBoard(jwtPayload, boardCreateRequestDto);
+        BoardIdReponse response = boardService.createBoard(jwtPayload, boardCreateRequestDto);
 
-        return ResponseEntity.ok().body(board);
+        return ResponseEntity.ok().body(response);
     }
 
     @PutMapping("/board")
-    public ResponseEntity<BoardResponse> updateBoard(@AuthenticationPrincipal JwtPayload jwtPayload,
+    public ResponseEntity<BoardIdReponse> updateBoard(
+        @AuthenticationPrincipal JwtPayload jwtPayload,
         @RequestBody BoardCreateRequestDto boardCreateRequestDto) {
-        BoardResponse board = boardService.updateBoard(jwtPayload, boardCreateRequestDto);
 
-        return ResponseEntity.ok().body(board);
+        BoardIdReponse response = boardService.updateBoard(jwtPayload, boardCreateRequestDto);
+
+        return ResponseEntity.ok().body(response);
     }
 
     @DeleteMapping("/board/{boardId}")

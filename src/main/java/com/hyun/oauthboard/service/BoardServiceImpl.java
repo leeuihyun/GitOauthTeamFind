@@ -1,6 +1,7 @@
 package com.hyun.oauthboard.service;
 
 import com.hyun.oauthboard.domain.dto.board.BoardCreateRequestDto;
+import com.hyun.oauthboard.domain.dto.board.BoardIdReponse;
 import com.hyun.oauthboard.domain.dto.board.BoardResponse;
 import com.hyun.oauthboard.domain.entity.Board;
 import com.hyun.oauthboard.domain.entity.Member;
@@ -23,52 +24,49 @@ public class BoardServiceImpl implements BoardService {
     private final MemberRepository memberRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public BoardResponse readBoard(JwtPayload jwtPayload, Long boardId) {
 
-        Board board = boardRepository.findById(boardId)
-            .orElseThrow(() -> new CustomException(BoardError.BOARD_ID_NOT_EXIST));
-
-        return board.toDto();
+        return boardRepository.findBoardLeftJoinViewsAndLikes(boardId);
     }
 
-    @PreAuthorize("@securityAuthorizationBoard.checkOwner(jwtPayload.memberId, #boardCreateRequestDto.boardId)")
-    @Transactional
     @Override
-    public BoardResponse createBoard(JwtPayload jwtPayload,
+    @Transactional
+    @PreAuthorize("@securityAuthorizationBoard.checkOwner(jwtPayload.memberId, #boardCreateRequestDto.boardId)")
+    public BoardIdReponse createBoard(JwtPayload jwtPayload,
         BoardCreateRequestDto boardCreateRequestDto) {
 
         Member member = memberRepository.findById(jwtPayload.getMemberId())
             .orElseThrow(() -> new CustomException(MemberError.MEMBER_ID_NOT_EXIST));
 
-        return boardRepository.save(boardCreateRequestDto.toEntity(member)).toDto();
+        return new BoardIdReponse(
+            boardRepository.save(boardCreateRequestDto.toEntity(member)).getBoardId());
     }
 
-    @PreAuthorize("@securityAuthorizationBoard.checkOwner(jwtPayload.memberId, #boardCreateRequestDto.boardId)")
-    @Transactional
+
     @Override
-    public BoardResponse updateBoard(JwtPayload jwtPayload,
+    @Transactional
+    @PreAuthorize("@securityAuthorizationBoard.checkOwner(jwtPayload.memberId, #boardCreateRequestDto.boardId)")
+    public BoardIdReponse updateBoard(JwtPayload jwtPayload,
         BoardCreateRequestDto boardCreateRequestDto) {
 
         Board board = boardRepository.findById(
                 boardCreateRequestDto.getBoardId())
             .orElseThrow(() -> new CustomException(BoardError.BOARD_ID_NOT_EXIST));
+
         board.updateBoard(boardCreateRequestDto);
-        return board.toDto();
+
+        return new BoardIdReponse(board.getBoardId());
     }
 
-    @Transactional
-    @Override
-    public void deleteBoard(JwtPayload jwtPayload, Long boardId) {
 
-        Member member = memberRepository.findById(jwtPayload.getMemberId())
-            .orElseThrow(() -> new CustomException(MemberError.MEMBER_ID_NOT_EXIST));
+    @Override
+    @Transactional
+    @PreAuthorize("@securityAuthorizationBoard.checkOwner(jwtPayload.memberId, boardId)")
+    public void deleteBoard(JwtPayload jwtPayload, Long boardId) {
 
         Board board = boardRepository.findById(boardId)
             .orElseThrow(() -> new CustomException(BoardError.BOARD_ID_NOT_EXIST));
-
-        if (!member.getMemberId().equals(board.getMember().getMemberId())) {
-            throw new CustomException(MemberError.MEMBER_ID_MISMATCH);
-        }
 
         boardRepository.delete(board);
     }

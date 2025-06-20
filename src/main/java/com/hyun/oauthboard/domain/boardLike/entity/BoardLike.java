@@ -1,5 +1,6 @@
-package com.hyun.oauthboard.domain.board.entity;
+package com.hyun.oauthboard.domain.boardLike.entity;
 
+import com.hyun.oauthboard.domain.board.entity.Board;
 import com.hyun.oauthboard.domain.member.entity.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,23 +21,23 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@Table(name = "board_view")
+@Table(name = "board_like")
 @Entity
 @Builder
-@EntityListeners(AuditingEntityListener.class)
 @Getter
+@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BoardView {
+public class BoardLike {
 
     @Id
-    @Column(name = "view_id")
+    @Column(name = "like_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long viewId;
+    private Long likeId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "viewer_id", nullable = false)
-    private Member viewer;
+    @JoinColumn(name = "liker_id", nullable = false)
+    private Member liker;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", nullable = false)

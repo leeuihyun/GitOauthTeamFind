@@ -4,9 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hyun.oauthboard.QueryDslTestConfig;
 import com.hyun.oauthboard.domain.board.entity.Board;
-import com.hyun.oauthboard.domain.board.entity.BoardLike;
-import com.hyun.oauthboard.domain.board.entity.BoardView;
 import com.hyun.oauthboard.domain.board.repository.BoardRepository;
+import com.hyun.oauthboard.domain.boardLike.entity.BoardLike;
 import com.hyun.oauthboard.domain.member.entity.Member;
 import com.hyun.oauthboard.domain.member.repository.MemberRepository;
 import jakarta.persistence.EntityManager;
@@ -77,14 +76,8 @@ public class BoardRepositoryTest {
             .liker(someone2)
             .build();
 
-        BoardView boardView = BoardView.builder()
-            .viewer(someone)
-            .board(board)
-            .build();
-
         em.persist(boardLike1);
         em.persist(boardLike2);
-        em.persist(boardView);
 
         em.flush();
         em.clear();
@@ -92,7 +85,6 @@ public class BoardRepositoryTest {
         var response = boardRepository.findBoardLeftJoinViewsAndLikes(board.getBoardId());
 
         assertThat(response.getBoardId()).isEqualTo(board.getBoardId());
-        assertThat(response.getViews()).isEqualTo(1L);
         assertThat(response.getBoardTitle()).isEqualTo("제목");
         assertThat(response.getLikes()).isEqualTo(2L);
     }

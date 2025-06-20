@@ -1,6 +1,5 @@
 package com.hyun.oauthboard.exception;
 
-import com.hyun.oauthboard.domain.dto.CustomExceptionDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;

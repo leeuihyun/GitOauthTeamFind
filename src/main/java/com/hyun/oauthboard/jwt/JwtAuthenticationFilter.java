@@ -1,7 +1,6 @@
 package com.hyun.oauthboard.jwt;
 
 import com.hyun.oauthboard.security.SecurityConstants;
-import com.hyun.oauthboard.service.JwtBlacklistService;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

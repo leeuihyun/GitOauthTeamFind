@@ -3,11 +3,14 @@ package com.hyun.oauthboard.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hyun.oauthboard.QueryDslTestConfig;
-import com.hyun.oauthboard.domain.entity.Board;
-import com.hyun.oauthboard.domain.entity.BoardLike;
-import com.hyun.oauthboard.domain.entity.BoardView;
-import com.hyun.oauthboard.domain.entity.Member;
+import com.hyun.oauthboard.domain.board.entity.Board;
+import com.hyun.oauthboard.domain.board.entity.BoardLike;
+import com.hyun.oauthboard.domain.board.entity.BoardView;
+import com.hyun.oauthboard.domain.board.repository.BoardRepository;
+import com.hyun.oauthboard.domain.member.entity.Member;
+import com.hyun.oauthboard.domain.member.repository.MemberRepository;
 import jakarta.persistence.EntityManager;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -96,30 +99,34 @@ public class BoardRepositoryTest {
 
     @Test
     void NPlus1_테스트() {
-        Member writer = memberRepository.save(
-            Member.builder()
-                .memberId(1L)
-                .memberName("작성자")
-                .memberAvatar("avatar")
-                .build());
 
-        em.persist(writer);
+        for (int i = 1; i <= 5; i++) {
+            Member writer = memberRepository.save(
+                Member.builder()
+                    .memberId((long) i)
+                    .memberName("작성자" + i)
+                    .memberAvatar("avatar")
+                    .build());
 
-        Board board = Board.builder()
-            .boardTitle("제목")
-            .boardContent("내용")
-            .member(writer)
-            .build();
+            em.persist(writer);
 
-        em.persist(board);
+            Board board = Board.builder()
+                .boardTitle("제목" + i)
+                .boardContent("내용")
+                .member(writer)
+                .build();
+
+            em.persist(board);
+        }
 
         em.flush();
         em.clear();
 
-        Board findBoard = boardRepository.findById(1L).orElseThrow();
+        List<Board> boards = boardRepository.findAll();
 
-//        for (Board board : boards) {
-//            System.out.println("좋아요 수: " + board.getLikes().size());
-//        }
+        for (Board board : boards) {
+            System.out.println("게시글: " + board.getBoardTitle() +
+                ", 작성자: " + board.getMember().getMemberName() + " " + board.getBoardTitle());
+        }
     }
 }

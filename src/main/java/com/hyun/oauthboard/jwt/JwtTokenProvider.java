@@ -1,6 +1,5 @@
 package com.hyun.oauthboard.jwt;
 
-import com.hyun.oauthboard.domain.dto.jwt.JwtToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;

@@ -6,9 +6,10 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.hyun.oauthboard.domain.dto.board.BoardResponse;
-import com.hyun.oauthboard.repository.BoardRepository;
-import com.hyun.oauthboard.repository.MemberRepository;
+import com.hyun.oauthboard.domain.board.dto.BoardResponse;
+import com.hyun.oauthboard.domain.board.repository.BoardRepository;
+import com.hyun.oauthboard.domain.board.service.BoardServiceImpl;
+import com.hyun.oauthboard.domain.member.repository.MemberRepository;
 import java.time.LocalDateTime;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;

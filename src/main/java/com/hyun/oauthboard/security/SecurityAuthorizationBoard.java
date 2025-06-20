@@ -1,9 +1,9 @@
 package com.hyun.oauthboard.security;
 
-import com.hyun.oauthboard.domain.entity.Board;
+import com.hyun.oauthboard.domain.board.entity.Board;
+import com.hyun.oauthboard.domain.board.repository.BoardRepository;
 import com.hyun.oauthboard.enums.BoardError;
 import com.hyun.oauthboard.exception.CustomException;
-import com.hyun.oauthboard.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

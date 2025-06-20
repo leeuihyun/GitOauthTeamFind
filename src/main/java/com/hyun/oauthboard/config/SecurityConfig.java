@@ -1,11 +1,11 @@
 package com.hyun.oauthboard.config;
 
 import com.hyun.oauthboard.jwt.JwtAuthenticationFilter;
+import com.hyun.oauthboard.jwt.JwtBlacklistService;
 import com.hyun.oauthboard.jwt.JwtTokenProvider;
 import com.hyun.oauthboard.security.CustomAccessDeniedHandler;
 import com.hyun.oauthboard.security.CustomAuthenticationEntryPoint;
 import com.hyun.oauthboard.security.SecurityConstants;
-import com.hyun.oauthboard.service.JwtBlacklistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
